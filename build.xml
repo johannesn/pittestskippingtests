@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<project name="pittestskippingtests">
+
+    <path id="pit.path">
+        <fileset dir="resources/pitest/">
+            <include name="pitest-1.4.3.jar"/>
+            <include name="pitest-entry-1.4.3.jar"/>
+            <include name="pitest-ant-1.4.3.jar"/>
+            <include name="xmlpull-1.1.3.1.jar"/>
+            <include name="xstream-1.4.11.1.jar"/>
+        </fileset>
+        <fileset dir="lib">
+            <include name="junit-4.12.jar"/>
+        </fileset>
+    </path>
+
+    <path id="testclasspath">
+        <fileset dir="lib" includes="**/*.jar"/>
+        <pathelement path="classes"/>
+    </path>
+
+    <taskdef name="pitest" classname="org.pitest.ant.PitestTask" classpathref="pit.path"/>
+
+    <target name="mutationCoverage">
+
+        <delete dir="classes"/>
+        <delete dir="testclasses"/>
+        <mkdir dir="classes"/>
+        <mkdir dir="testclasses"/>
+        <javac srcdir="src" destdir="classes" debug="on"/>
+        <javac srcdir="testsrc" destdir="testclasses" debug="on" classpathref="testclasspath"/>
+
+        <path id="mutation.path">
+            <pathelement location="testclasses"/>
+            <pathelement location="classes"/>
+            <fileset dir="lib">
+                <include name="junit-4.12.jar"/>
+            </fileset>
+        </path>
+
+        <pitest
+                pitClasspath="pit.path"
+                classPath="mutation.path"
+                targetClasses="my.package1.*,my.package2.*,my.package3.*"
+                targetTests="my.package1.Class1Test,my.package2.sub.Class2Test,my.package3.sub.Class3Test"
+                reportDir="pitest"
+                sourceDir="src,testsrc"
+                timestampedReports="false"
+                outputFormats="HTML,XML"
+                excludedClasses="my.package1.*Test,my.package2.*Test,my.package3.*Test"
+                verbose="true"
+        />
+
+    </target>
+
+</project>
